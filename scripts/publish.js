@@ -49,7 +49,7 @@ inquirer.prompt([
   // make sure we're on the master branch
   const branch = execSync(branchCommand);
   const branchString = branch.toString().trim();
-  if (branchString !== 'master') {
+  if (branchString !== 'build') {
     console.log(errColor(`must be on master branch to publish. Currently on '${branchString}'`));
     console.log(errColor('Aborting publish'));
     return;
