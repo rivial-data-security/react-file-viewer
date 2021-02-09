@@ -1,41 +1,32 @@
 // Copyright (c) 2017 PlanGrid, Inc.
 
 const path = require('path');
+const webpack = require('webpack');
 const autoprefixer = require('autoprefixer');
 
-const BUILD_DIR = path.resolve(__dirname, './dist');
-const APP_DIR = path.resolve(__dirname, './src');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const config = {
-  entry: `${APP_DIR}/components`,
+module.exports = {
+  devtool: 'cheap-module-source-map',
+
+  entry: {
+    app: [
+      'webpack-dev-server/client?http://localhost:8081/',
+      'webpack/hot/dev-server',
+      path.resolve(__dirname, './src/app.js'),
+    ],
+  },
   output: {
-    path: BUILD_DIR,
-    filename: 'index.js',
-    library: ['FileViewer'],
-    libraryTarget: 'umd',
+    path: path.resolve(__dirname, './build'),
+    pathinfo: true,
+    filename: 'app/js/[name].bundle.js',
+    publicPath: '/',
   },
   resolve: {
-    modules: [path.resolve(__dirname, './src'), 'node_modules'],
-    extensions: ['.js', '.jsx', '.json'],
+    modules: [path.resolve(__dirname, 'src'), path.resolve(__dirname, 'example_files'), 'node_modules'],
+    extensions: ['.js', '.json', '.jsx'],
   },
-  externals: [
-    {
-      react: {
-        root: 'React',
-        commonjs2: 'react',
-        commonjs: 'react',
-        amd: 'react',
-      },
-    },
-    {
-      'react-dom': {
-        root: 'ReactDOM',
-        commonjs2: 'react-dom',
-        commonjs: 'react-dom',
-        amd: 'react-dom',
-      },
-    },
-  ],
+
   module: {
     rules: [
       {
@@ -76,14 +67,30 @@ const config = {
         ],
       },
       {
+        test: /\.(js|jsx)$/,
+        loader: 'eslint-loader',
+        include: path.resolve(__dirname, 'src'),
+        enforce: 'pre',
+      },
+      {
+        test: [/\.wexbim$/, /\.jpg$/, /\.docx$/, /\.csv$/, /\.mp4$/, /\.xlsx$/, /\.doc$/, /\.avi$/, /\.webm$/, /\.mov$/, /\.mp3$/, /\.rtf$/, /\.pdf$/],
+        loader: 'file-loader',
+      },
+      {
         test: /\.png$/,
         loader: 'url-loader',
         options: {
-          limit: 10000, // if file <=10kb
+          limit: 10000,
         },
       },
     ],
   },
-};
 
-module.exports = config;
+  plugins: [
+    new HtmlWebpackPlugin({
+      inject: true,
+      template: path.resolve(__dirname, './index.html'),
+    }),
+    new webpack.HotModuleReplacementPlugin(),
+  ],
+};
